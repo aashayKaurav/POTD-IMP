@@ -24,7 +24,7 @@ The questions are categorized based on their topics, such as arrays, linked list
 
 - **Trees**
 
-- ### [Dynamic Programming](dynamic programming/)
+- ### [Dynamic Programming](Dynamic Programming/)
 
 
 ## Solutions
