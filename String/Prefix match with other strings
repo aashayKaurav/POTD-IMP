@@ -1,0 +1,110 @@
+//
+Given an array of strings arr[] of size n, a string str and an integer k. The task is to find the count of strings in arr[] whose prefix of length k matches 
+with the k-length prefix of str.
+
+Example 1:
+
+Input:
+n = 6
+arr[] = {“abba”, “abbb”, “abbc”, “abbd”, 
+“abaa”, “abca”}
+str = “abbg”
+k = 3
+Output: 
+4 
+Explanation:
+“abba”, “abbb”, “abbc” and “abbd” have their prefix of length 3 equal to 3-length prefix of str i.e., "abb".
+Example 2:
+
+Input:
+n = 3
+arr[] = {“geeks”, “geeksforgeeks”, “forgeeks”}
+str = “geeks”
+k = 2
+Output: 
+2
+Explanation:
+“geeks” and “geeksforgeeks” have their prefix of length 2 equal to 2-length prefix of str i.e., "ge".
+//
+
+    ** Approach : Simply compare k prefix subtrings with k-prefix string given and increment the counter if matched. Return the count.
+      int klengthpref(string arr[], int n, int k, string str){    
+        if(k > str.size()) {
+            return 0;
+        }
+        string temp1 = str.substr(0, k);
+        int count = 0;
+        for(int i=0; i<n; i++) {
+            string temp2 = arr[i].substr(0, k);
+            
+            if(temp1 == temp2) {
+                count++;
+            }
+        }
+        return count;
+    }
+    T.C : O(N*K)
+    S.C : O(1)
+-------------------------------------------------------------------------------------------------------------------------------------
+
+    ** Using TRIE DS : Store the strings with the prefixCount. Then search the k-prefix string and return it's prefixCount.
+    class TrieNode {
+        public:
+        TrieNode *children[26];
+        int prefixCount;
+        
+        TrieNode() {
+            for(int i=0; i<26; i++) {
+                this->children[i] = NULL;
+            }
+            prefixCount = 0;
+        }
+    };
+
+    class Trie {
+        private:
+        TrieNode *root;
+        public:
+        Trie() {
+            root = new TrieNode();
+        }
+        
+        void insert(string str) {
+            TrieNode *curr = root;
+            for(int i=0; i<str.size(); i++) {
+                int index = str[i] - 'a';
+                if(curr->children[index] == NULL) {
+                    curr->children[index] = new TrieNode();
+                }
+                curr = curr->children[index];
+                curr->prefixCount++;
+            }
+        }
+        int search(string str, int k) {
+            TrieNode *curr = root;
+            for(int i=0; i<k; i++) {
+                int index = str[i] - 'a';
+                if(curr->children[index] == NULL) {
+                    return 0;
+                }
+                curr = curr->children[index];
+            }
+            return curr->prefixCount;
+        }
+    };
+    
+    class Solution{   
+    public:
+        int klengthpref(string arr[], int n, int k, string str){    
+            if(k > str.size()) {
+                return 0;
+            }
+            Trie t;
+            for(int i=0; i<n; i++) {
+                t.insert(arr[i]);
+            }
+            return t.search(str, k);
+        }
+    };
+    T.C : O(N + K), N : length of str and K : length of prefix
+    S.C : O(26*M), M : Avg length of the string
