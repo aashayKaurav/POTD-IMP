@@ -1,0 +1,134 @@
+You are given a string word.
+
+Return the maximum number of non-intersecting substrings of word that are at least four characters long and start and end with the same letter.
+
+Example 1:
+
+Input: word = "abcdeafdef"
+
+Output: 2
+
+Explanation:
+
+The two substrings are "abcdea" and "fdef".
+
+Example 2:
+
+Input: word = "bcdaaaab"
+
+Output: 1
+
+Explanation:
+
+The only substring is "aaaa". Note that we cannot also choose "bcdaaaab" since it intersects with the other substring.
+
+Constraints:
+
+1 <= word.length <= 2 * 105
+word consists only of lowercase English letters.
+
+
+
+---------------------------------------------------------------------------------------------------------------------------------------------------
+
+Brute Force : Generate all the substrings, meeting the 2 conditions and store as intervals. Then sort based on second index value to find the non-overlapping intervals.
+              
+
+class Solution {
+public:
+    int maxSubstrings(string word) {
+        int n = word.size();
+        
+        if(n < 4) {
+            return 0;
+        }
+        
+        vector<pair<int, int>> intervals;
+        
+        for(int i=0; i<n; i++) {
+            for(int j=i+3; j<n; j++) {
+                if(word[i] == word[j]) {
+                    intervals.push_back({i, j});
+                }
+            }
+        }
+        
+        if(intervals.size() == 0) {
+            return 0;
+        }
+        sort(intervals.begin(), intervals.end(), [](auto &a, auto &b){
+            return a.second < b.second;
+        });
+        
+        pair<int, int> temp = intervals[0];
+        int count = 0, lastIndex = -1;
+        
+        for(auto it : intervals) {
+            if(it.first > lastIndex) {
+                count++;
+                lastIndex = it.second;
+            }
+        }
+        
+        return count;
+    }
+};
+
+Time Complexity  : O(N^2)
+Space Complexity : O(N)
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Optimal Solution:
+
+class Solution {
+public:
+    // Try not to generate all the substrings. We just need to meet 2 conditions for which we only need indices of each letter.
+    // Try to find closest indices that satisfy (Min Length >= 4) to make more substrings.
+    // Get all the intervals for each letter possible. Then extract the ones which are non-overlapping. 
+    int maxSubstrings(string word) {
+        int n = word.size();
+        
+        if(n < 4) {
+            return 0;
+        }
+        
+        unordered_map<char, vector<int>> map;
+        vector<pair<int, int>> intervals;
+
+        for(int i=0; i<n; i++) {
+            map[word[i]].push_back(i);
+        }
+
+        for(auto it: map) {
+            vector<int>& pos = it.second;
+            int len = pos.size();
+            for(int i = 0; i < len; ++i) {
+                for(int j = i + 1; j < len; ++j) {
+                    if(pos[j] - pos[i] + 1 >= 4) {
+                        intervals.push_back({pos[i], pos[j]});
+                        break;      // we want the smallest interval for this i
+                    }
+                }
+            }
+        }
+
+        sort(intervals.begin(), intervals.end(), [](auto &a, auto &b) {
+            return a.second < b.second;
+        });
+
+        int ans = 0, lastIndex = -1;
+        for (auto &it : intervals) {
+            if(lastIndex < it.first) {
+                ans++;
+                lastIndex = it.second;
+            }
+        }
+
+        return ans;
+    }
+};
+
+Time Complexity  : O(N * LogN)
+Space Complexity : O(N)
+
+
